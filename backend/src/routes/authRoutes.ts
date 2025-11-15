@@ -1,47 +1,37 @@
-import { Router, Request, Response } from "express";
-import jwt from "jsonwebtoken";
-import { v4 as uuidv4 } from "uuid";
-import { config } from "../config";
-import { User, AuthPayload} from "../types";
-
+import { Router, Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
+import { config } from '../config';
+import { User, AuthPayload } from '../types';
 
 const router = Router();
 
 // Mock user database
 const mockUsers: Map<string, User & { password: string }> = new Map([
   [
-    "demo",
+    'demo',
     {
       id: uuidv4(),
-      username: "demo",
-      email: "demo@example.com",
-      password: "demo123",
-    },
-  ],
-  [
-    "trader",
-    {
-      id: uuidv4(),
-      username: "trader",
-      email: "trader@example.com",
-      password: "trader123",
+      username: 'demo',
+      email: 'demo@example.com',
+      password: 'demo123',
     },
   ],
 ]);
 
 // Mock login endpoint
-router.post("/login", (req: Request, res: Response) => {
+router.post('/login', (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    res.status(400).json({ error: "Username and password required" });
+    res.status(400).json({ error: 'Username and password required' });
     return;
   }
 
   const user = mockUsers.get(username);
 
   if (!user || user.password !== password) {
-    res.status(401).json({ error: "Invalid credentials" });
+    res.status(401).json({ error: 'Invalid credentials' });
     return;
   }
 
@@ -50,7 +40,7 @@ router.post("/login", (req: Request, res: Response) => {
     username: user.username,
   };
 
-  const token = jwt.sign(payload, config.jwtSecret, { expiresIn: "24h" });
+  const token = jwt.sign(payload, config.jwtSecret, { expiresIn: '24h' });
 
   res.json({
     token,
@@ -63,12 +53,12 @@ router.post("/login", (req: Request, res: Response) => {
 });
 
 // Verify token endpoint
-router.get("/verify", (req: Request, res: Response) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+router.get('/verify', (req: Request, res: Response) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    res.status(401).json({ error: "No token provided" });
+    res.status(401).json({ error: 'No token provided' });
     return;
   }
 
@@ -76,7 +66,7 @@ router.get("/verify", (req: Request, res: Response) => {
     const decoded = jwt.verify(token, config.jwtSecret) as AuthPayload;
     res.json({ valid: true, user: decoded });
   } catch (error) {
-    res.status(403).json({ error: "Invalid token", valid: false });
+    res.status(403).json({ error: 'Invalid token', valid: false });
   }
 });
 
