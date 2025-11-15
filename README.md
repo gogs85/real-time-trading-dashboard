@@ -33,6 +33,10 @@ docker compose -f docker-compose-dev.yml up --build
 npm run install:all
 ```
 
+```bash
+npm run start:all
+```
+
 or
 
 **Start frontend**:

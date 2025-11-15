@@ -10,11 +10,29 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useWebSocket } from '@/hooks/useWebSocket';
 
+function SectionCardsSkeleton() {
+  return (
+    <div className='*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4'>
+      {Array.from({ length: 4 }).map((_, index) => (
+        <Skeleton
+          key={index}
+          className='h-[154px] w-full max-w-[295px]'
+        />
+      ))}
+    </div>
+  );
+}
+
 export function SectionCards () {
-  const { tickers, error, reconnect } = useWebSocket();
+  const { tickers, error, reconnect, isConnected } = useWebSocket();
   const navigate = useNavigate();
+
+  if (!isConnected && tickers.length === 0) {
+    return <SectionCardsSkeleton />;
+  }
 
   return (
     <div className='*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4'>
@@ -27,7 +45,7 @@ export function SectionCards () {
       {tickers.map(ticker => (
         <Card
           key={ticker.symbol}
-          className='max-w-sm cursor-pointer transition-transform hover:scale-105'
+          className='max-w-[295px] cursor-pointer transition-transform hover:scale-105'
           onClick={() => navigate(`/ticker/${ticker.symbol}`)}
         >
           <CardHeader>

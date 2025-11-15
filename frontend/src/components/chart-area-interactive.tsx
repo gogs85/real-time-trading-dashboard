@@ -26,6 +26,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@/components/ui/toggle-group"
+import { Skeleton } from "@/components/ui/skeleton"
 
 import { Button } from "./ui/button"
 import { DropdownMenu,
@@ -49,6 +50,30 @@ const chartConfig = {
 interface ChartAreaInteractiveProps {
   ticker?: Ticker | null
   showTickerSelector?: boolean
+}
+
+function ChartSkeleton() {
+  return (
+    <Card className="@container/card">
+      <CardHeader>
+        <CardTitle>Chart</CardTitle>
+        <CardDescription>
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-9 w-48" />
+          </div>
+        </CardDescription>
+        <CardAction className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-9 w-28" />
+          </div>
+          <Skeleton className="h-9 w-40" />
+        </CardAction>
+      </CardHeader>
+      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+        <Skeleton className="h-[250px] w-full" />
+      </CardContent>
+    </Card>
+  )
 }
 
 export function ChartAreaInteractive({ ticker: propTicker, showTickerSelector = true }: ChartAreaInteractiveProps = {}) {
@@ -138,6 +163,11 @@ export function ChartAreaInteractive({ ticker: propTicker, showTickerSelector = 
     const startTime = now - millisecondsToSubtract
     return date.getTime() >= startTime
   })
+
+  // Show skeleton during initial loading
+  if (isLoadingTickers || (isLoadingHistory && historicalData.length === 0)) {
+    return <ChartSkeleton />
+  }
 
   return (
     <Card className="@container/card">
