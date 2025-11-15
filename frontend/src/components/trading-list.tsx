@@ -1,17 +1,22 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { type Ticker } from '@/services/types/user';
 
 interface TickerListProps {
   tickers: Ticker[];
   selectedSymbol: string | null;
-  onSelectTicker: (symbol: string) => void;
+  onSelectTicker?: (symbol: string) => void;
+  linkToDetail?: boolean;
 }
 
 export const TickerList: React.FC<TickerListProps> = ({
   tickers,
   selectedSymbol,
   onSelectTicker,
+  linkToDetail = false,
 }) => {
+  const navigate = useNavigate();
+
   const formatPrice = (price: number): string => {
     return price.toLocaleString('en-US', {
       minimumFractionDigits: 2,
@@ -22,6 +27,14 @@ export const TickerList: React.FC<TickerListProps> = ({
   const formatChange = (change: number, changePercent: number): string => {
     const sign = change >= 0 ? '+' : '';
     return `${sign}${formatPrice(change)} (${sign}${changePercent.toFixed(2)}%)`;
+  };
+
+  const handleTickerClick = (symbol: string) => {
+    if (linkToDetail) {
+      navigate(`/ticker/${symbol}`);
+    } else if (onSelectTicker) {
+      onSelectTicker(symbol);
+    }
   };
 
   return (
@@ -38,7 +51,8 @@ export const TickerList: React.FC<TickerListProps> = ({
               className={`ticker-item ${isSelected ? 'selected' : ''} ${
                 isPositive ? 'positive' : 'negative'
               }`}
-              onClick={() => onSelectTicker(ticker.symbol)}
+              onClick={() => handleTickerClick(ticker.symbol)}
+              style={{ cursor: 'pointer' }}
             >
               <div className='ticker-header'>
                 <span className='ticker-symbol'>{ticker.symbol}</span>

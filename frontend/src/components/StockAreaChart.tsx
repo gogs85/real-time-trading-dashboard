@@ -47,9 +47,8 @@ export function StockAreaChart ({ data, ...props }: StockAreaChartProps) {
         cursor={false}
         content={
           <ChartTooltipContent
-            labelFormatter={value => {
-              const timestamp = typeof value === 'number' ? value : Number(value);
-              return new Date(timestamp).toLocaleString('en-US', {
+            labelFormatter={(_, payload) => {
+              return new Date(payload?.[0]?.payload?.timestamp).toLocaleString('en-US', {
                 month: 'short',
                 day: 'numeric',
                 hour: '2-digit',

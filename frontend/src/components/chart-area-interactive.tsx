@@ -46,16 +46,31 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function ChartAreaInteractive() {
+interface ChartAreaInteractiveProps {
+  ticker?: Ticker | null
+  showTickerSelector?: boolean
+}
+
+export function ChartAreaInteractive({ ticker: propTicker, showTickerSelector = true }: ChartAreaInteractiveProps = {}) {
   const isMobile = useIsMobile()
   const [timeRange, setTimeRange] = useState("90d")
   const [chartType, setChartType] = useState<"area" | "line">("area")
   const [tickers, setTickers] = useState<Ticker[]>([])
-  const [isLoadingTickers, setIsLoadingTickers] = useState(true)
-  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null)
+  const [isLoadingTickers, setIsLoadingTickers] = useState(showTickerSelector)
+  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(propTicker?.symbol || null)
 
 
   useEffect(() => {
+    if (propTicker) {
+      setSelectedSymbol(propTicker.symbol)
+      setIsLoadingTickers(false)
+      return
+    }
+
+    if (!showTickerSelector) {
+      return
+    }
+
     const fetchTickers = async () => {
       try {
         setIsLoadingTickers(true)
@@ -72,9 +87,9 @@ export function ChartAreaInteractive() {
     }
 
     fetchTickers()
-  }, [])
+  }, [propTicker, showTickerSelector])
 
-  const selectedTicker = tickers.find(t => t.symbol === selectedSymbol) || null
+  const selectedTicker = propTicker || tickers.find(t => t.symbol === selectedSymbol) || null
 
 
   const dataPoints = useMemo(() => {
@@ -128,37 +143,41 @@ export function ChartAreaInteractive() {
     <Card className="@container/card">
       <CardHeader>
         <CardTitle>Chart</CardTitle>
-        <CardDescription>
-          <div className="flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" disabled={isLoadingTickers}>
-                  {isLoadingTickers
-                    ? 'Loading...'
-                    : selectedTicker
-                      ? `${selectedTicker.symbol} - ${selectedTicker.name}`
-                      : 'Select Ticker'}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="start">
-                {tickers.length === 0 && !isLoadingTickers ? (
-                  <DropdownMenuItem disabled>No tickers available</DropdownMenuItem>
-                ) : (
-                  tickers.map((ticker) => (
-                    <DropdownMenuItem
-                      key={ticker.symbol}
-                      onClick={() => setSelectedSymbol(ticker.symbol)}
-                    >
-                      {ticker.symbol} - {ticker.name}
-                    </DropdownMenuItem>
-                  ))
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            {isLoadingHistory && <span className="text-sm text-muted-foreground">Loading data...</span>}
-            {historyError && <span className="text-sm text-destructive">{historyError}</span>}
-          </div>
-        </CardDescription>
+        {(showTickerSelector || isLoadingHistory || historyError) && (
+          <CardDescription>
+            <div className="flex items-center gap-2">
+              {showTickerSelector && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" disabled={isLoadingTickers}>
+                      {isLoadingTickers
+                        ? 'Loading...'
+                        : selectedTicker
+                          ? `${selectedTicker.symbol} - ${selectedTicker.name}`
+                          : 'Select Ticker'}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="start">
+                    {tickers.length === 0 && !isLoadingTickers ? (
+                      <DropdownMenuItem disabled>No tickers available</DropdownMenuItem>
+                    ) : (
+                      tickers.map((ticker) => (
+                        <DropdownMenuItem
+                          key={ticker.symbol}
+                          onClick={() => setSelectedSymbol(ticker.symbol)}
+                        >
+                          {ticker.symbol} - {ticker.name}
+                        </DropdownMenuItem>
+                      ))
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+              {isLoadingHistory && <span className="text-sm text-muted-foreground">Loading data...</span>}
+              {historyError && <span className="text-sm text-destructive">{historyError}</span>}
+            </div>
+          </CardDescription>
+        )}
         <CardAction className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <ToggleGroup
