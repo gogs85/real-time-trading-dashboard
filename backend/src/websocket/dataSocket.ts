@@ -3,6 +3,7 @@ import { Server, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import { marketDataService } from '../services/marketDataService';
 import { Ticker } from '../types';
+import { config } from '../config';
 
 export class MarketDataWebSocket {
   private io: Server;
@@ -10,7 +11,7 @@ export class MarketDataWebSocket {
   constructor(server: HTTPServer) {
     this.io = new Server(server, {
       cors: {
-        origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+        origin: config.corsOrigin,
         methods: ['GET', 'POST'],
         credentials: true,
       },
@@ -25,7 +26,7 @@ export class MarketDataWebSocket {
       }
 
       try {
-        const payload = jwt.verify(token, process.env.JWT_SECRET!);
+        const payload = jwt.verify(token, config.jwtSecret);
         socket.data.user = payload; // store user if needed
         next();
       } catch (err) {
