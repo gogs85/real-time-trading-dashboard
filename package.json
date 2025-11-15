@@ -3,15 +3,28 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "install:all": "npm install && concurrently \"cd backend && npm install\" \"cd frontend && npm install\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "start:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "test": "cd backend && npm test",
+    "build": "cd backend && npm run build && cd ../frontend && npm run build",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up",
+    "docker:down": "docker-compose down"
   },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "prettier": "^3.2.5",
     "turbo": "2.6.1"
   },
   "engines": {
-    "node": ">=14.0.0",
-    "npm": ">=7.0.0"
+    "node": ">=18.0.0",
+    "npm": ">=10.0.0"
   },
   "keywords": [],
   "author": "",

@@ -1,7 +1,6 @@
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '../app-sidebar';
 import { SiteHeader } from '../site-header';
-
 import { ChartAreaInteractive } from '../chart-area-interactive';
 import { SectionCards } from '../section-cards';
 

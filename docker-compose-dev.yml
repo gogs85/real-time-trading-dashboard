@@ -11,7 +11,7 @@ services:
       - PORT=3001
       - JWT_SECRET=dev-secret-key
       - CACHE_TTL=300000
-      - CORS_ORIGIN=http://localhost:3000
+      - CORS_ORIGIN=http://localhost:5173
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -19,25 +19,25 @@ services:
       - trading-network
     command: npm run dev
 
-  # frontend-dev:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile.dev
-  #   container_name: trading-frontend-dev
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     - REACT_APP_API_URL=http://localhost:3001
-  #     - REACT_APP_WS_URL=ws://localhost:3001/ws
-  #     - CHOKIDAR_USEPOLLING=true
-  #   volumes:
-  #     - ./frontend:/app
-  #     - /app/node_modules
-  #   depends_on:
-  #     - backend-dev
-  #   networks:
-  #     - trading-network
-  #   command: npm start
+  frontend-dev:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: trading-frontend-dev
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://backend-dev:3001
+      - VITE_WS_URL=ws://backend-dev:3001
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend-dev
+    networks:
+      - trading-network
+    command: npm run dev
 
 networks:
   trading-network:

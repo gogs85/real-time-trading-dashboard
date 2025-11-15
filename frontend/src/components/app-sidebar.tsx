@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { IconDashboard, IconInnerShadowTop } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
 
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -18,9 +19,9 @@ const data = {
   navMain: [
     {
       title: 'Dashboard',
-      url: '#',
+      url: '/dashboard',
       icon: IconDashboard,
-    },
+    }
   ],
 };
 
@@ -32,10 +33,10 @@ export function AppSidebar ({ ...props }: React.ComponentProps<typeof Sidebar>) 
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className='data-[slot=sidebar-menu-button]:p-1.5!'>
-              <a href='#'>
+              <Link to='/dashboard'>
                 <IconInnerShadowTop className='size-5!' />
                 <span className='text-base font-semibold'>Crypto Trading</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

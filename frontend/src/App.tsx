@@ -2,9 +2,9 @@ import './App.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Dashboard } from './components/pages/Dashboard';
 import { Login } from './components/pages/Login';
-import { TickerDetail } from './components/pages/TickerDetail';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SidebarProvider } from './components/ui/sidebar';
+import {TickerDetail} from './components/pages/TickerDetail';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
