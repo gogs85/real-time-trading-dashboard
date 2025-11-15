@@ -1,6 +1,5 @@
 
 import { useState, useEffect, useMemo } from "react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useTickerHistory } from "@/hooks/useTickerHistory"
@@ -15,8 +14,6 @@ import {
 import {
   type ChartConfig,
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
 } from "@/components/ui/chart"
 import {
   Select,
@@ -37,6 +34,8 @@ import { DropdownMenu,
   DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { apiService } from "@/services/api"
 import type { Ticker } from "@/services/types/user"
+import { StockAreaChart } from "./StockAreaChart"
+import { StockLineChart } from "./StockLineChart"
 
 export const description = "An interactive area chart"
 
@@ -50,6 +49,7 @@ const chartConfig = {
 export function ChartAreaInteractive() {
   const isMobile = useIsMobile()
   const [timeRange, setTimeRange] = useState("90d")
+  const [chartType, setChartType] = useState<"area" | "line">("area")
   const [tickers, setTickers] = useState<Ticker[]>([])
   const [isLoadingTickers, setIsLoadingTickers] = useState(true)
   const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null)
@@ -133,8 +133,8 @@ export function ChartAreaInteractive() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" disabled={isLoadingTickers}>
-                  {isLoadingTickers 
-                    ? 'Loading...' 
+                  {isLoadingTickers
+                    ? 'Loading...'
                     : selectedTicker
                       ? `${selectedTicker.symbol} - ${selectedTicker.name}`
                       : 'Select Ticker'}
@@ -159,7 +159,36 @@ export function ChartAreaInteractive() {
             {historyError && <span className="text-sm text-destructive">{historyError}</span>}
           </div>
         </CardDescription>
-        <CardAction>
+        <CardAction className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <ToggleGroup
+              type="single"
+              value={chartType}
+              onValueChange={(value) => value && setChartType(value as "area" | "line")}
+              variant="outline"
+              className="hidden @[767px]/card:flex cursor-pointer"
+            >
+              <ToggleGroupItem value="area">Area</ToggleGroupItem>
+              <ToggleGroupItem value="line">Line</ToggleGroupItem>
+            </ToggleGroup>
+            <Select value={chartType} onValueChange={(value) => setChartType(value as "area" | "line")}>
+              <SelectTrigger
+                className="flex w-28 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate @[767px]/card:hidden"
+                size="sm"
+                aria-label="Select chart type"
+              >
+                <SelectValue placeholder="Area" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl">
+                <SelectItem value="area" className="rounded-lg cursor-pointer">
+                  Area
+                </SelectItem>
+                <SelectItem value="line" className="rounded-lg cursor-pointer">
+                  Line
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <ToggleGroup
             type="single"
             value={timeRange}
@@ -202,64 +231,10 @@ export function ChartAreaInteractive() {
             <div className="flex h-[250px] items-center justify-center text-sm text-muted-foreground">
               {selectedTicker ? 'No data available for this time range' : 'Select a ticker to view chart'}
             </div>
+          ) : chartType === "area" ? (
+            <StockAreaChart data={filteredData} />
           ) : (
-            <AreaChart data={filteredData}>
-              <defs>
-                <linearGradient id="fillPrice" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor="var(--color-price)"
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor="var(--color-price)"
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-              </defs>
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="timestamp"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                minTickGap={32}
-                tickFormatter={(value) => {
-                  const date = new Date(value)
-                  return date.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                }}
-              />
-              <ChartTooltip
-                cursor={false}
-                content={
-                  <ChartTooltipContent
-                    labelFormatter={(value) => {
-                      return new Date(value).toLocaleString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    }}
-                    formatter={(value) => [`$${Number(value).toFixed(2)}`, "Price"]}
-                    indicator="dot"
-                  />
-                }
-              />
-              <Area
-                dataKey="price"
-                type="monotone"
-                fill="url(#fillPrice)"
-                stroke="var(--color-price)"
-                strokeWidth={2}
-              />
-            </AreaChart>
+            <StockLineChart data={filteredData} />
           )}
         </ChartContainer>
       </CardContent>
